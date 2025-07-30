@@ -17,24 +17,40 @@ def task_properties(task_id, description, status, createdAt, updatedAt):
 
 
 def add_task(args):
+    tasks_list = []
+    counter = 0
+
     if Path(tasks_file).is_file():
         try:
             with open(tasks_file, "r") as openfile:
                 data_in = json.load(openfile)
+                for task in data_in:
+                    print(task)
+                    tasks_list.append(task)
+            print(data_in)
+            # tasks_list.append(data_in)
+            print(tasks_list)
         except Exception as e:
             print(f"An error has occurred: {e}")
             exit(1)
 
+        task_id = len(tasks_list) + 1
+        print("------------------------------------------")
+        print(task_id)
+        print(len(data_in))
         print(data_in)
+        print(tasks_list)
+        print("------------------------------------------")
 
     if not Path(tasks_file).is_file():
         task_id = 1
-        description = args.task
-        status = "todo"
-        createdAt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        updatedAt = createdAt
 
-    data_in = task_properties(
+    description = args.task
+    status = "todo"
+    createdAt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    updatedAt = createdAt
+
+    data_add = task_properties(
         task_id,
         description,
         status,
@@ -42,19 +58,26 @@ def add_task(args):
         updatedAt,
     )
 
-    print(data_in)
+    tasks_list.append(data_add)
+
+    print("++++++++++++++++++++++++++++++++++++++++++")
+    print(data_add, type(data_add))
+    print(tasks_list, type(tasks_list))
+    print("------------------------------------------")
 
     try:
         with open(tasks_file, "w") as f:
-            json.dump(data_in, f)
+            json.dump(tasks_list, f)
     except Exception as e:
         print(f"An error has occurred: {e}")
         exit(1)
 
 
 def list_tasks(args):
-    with open(tasks_file, "r") as openfile:
-        data_in = json.load(openfile)
+    if args.status == None:
+        with open(tasks_file, "r") as openfile:
+            data_in = json.load(openfile)
+
     print(data_in)
     print(type(data_in))
 
