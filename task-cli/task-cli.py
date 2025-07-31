@@ -16,6 +16,15 @@ def task_properties(task_id, description, status, createdAt, updatedAt):
     return properties
 
 
+def write_json_to_file(tasks_list):
+    try:
+        with open(tasks_file, "w") as f:
+            json.dump(tasks_list, f)
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+        exit(1)
+
+
 def read_tasks_file():
     tasks_list = []
     try:
@@ -33,18 +42,10 @@ def add_task(args):
 
     if Path(tasks_file).is_file():
         tasks_list = read_tasks_file()
-        # try:
-        # with open(tasks_file, "r") as openfile:
-        # data_in = json.load(openfile)
-        # for task in data_in:
-        # tasks_list.append(task)
-        # except Exception as e:
-        # print(f"An error has occurred: {e}")
-        # exit(1)
-
         task_id = len(tasks_list) + 1
 
     if not Path(tasks_file).is_file():
+        tasks_list = []
         task_id = 1
 
     description = args.task
@@ -62,16 +63,19 @@ def add_task(args):
 
     tasks_list.append(data_add)
 
-    try:
-        with open(tasks_file, "w") as f:
-            json.dump(tasks_list, f)
-    except Exception as e:
-        print(f"An error has occurred: {e}")
-        exit(1)
+    write_json_to_file(tasks_list)
 
 
 def update_task(args):
-    print("Updating task")
+    tasks_list_updated = []
+
+    tasks_list = read_tasks_file()
+    for task in tasks_list:
+        if int(args.task_id) == int(task["task_id"]):
+            task["description"] = args.task_description
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        tasks_list_updated.append(task)
+    write_json_to_file(tasks_list_updated)
 
 
 def list_tasks(args):
