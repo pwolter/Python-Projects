@@ -78,6 +78,16 @@ def update_task(args):
     write_json_to_file(tasks_list_updated)
 
 
+def delete_task(args):
+    tasks_list_updated = []
+
+    tasks_list = read_tasks_file()
+    for task in tasks_list:
+        if int(args.task_id) != int(task["task_id"]):
+            tasks_list_updated.append(task)
+    write_json_to_file(tasks_list_updated)
+
+
 def list_tasks(args):
     if args.status == None:
         with open(tasks_file, "r") as openfile:
@@ -103,6 +113,10 @@ def main():
     parser_update_task.add_argument("task_id", help="Task id")
     parser_update_task.add_argument("task_description", help="Task description")
     parser_update_task.set_defaults(funct=update_task)
+
+    parser_delete_task = subparsers.add_parser("delete", help="Delete task")
+    parser_delete_task.add_argument("task_id", help="Task id")
+    parser_delete_task.set_defaults(funct=delete_task)
 
     args = parser.parse_args()
     args.funct(args)
