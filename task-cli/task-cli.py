@@ -39,7 +39,7 @@ def read_tasks_file():
 
 
 def add_task(args):
-
+    # TODO Make task_id unique specially when a task is deleted
     if Path(tasks_file).is_file():
         tasks_list = read_tasks_file()
         task_id = len(tasks_list) + 1
@@ -88,12 +88,39 @@ def delete_task(args):
     write_json_to_file(tasks_list_updated)
 
 
-def list_tasks(args):
-    if args.status == None:
-        with open(tasks_file, "r") as openfile:
-            data_in = json.load(openfile)
+def mark_in_progress(args):
+    tasks_list_updated = []
 
-    print(data_in)
+    tasks_list = read_tasks_file()
+    for task in tasks_list:
+        if int(args.task_id) == int(task["task_id"]):
+            task["status"] = "in-progress"
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        tasks_list_updated.append(task)
+    write_json_to_file(tasks_list_updated)
+
+
+def mark_done(args):
+    tasks_list_updated = []
+
+    tasks_list = read_tasks_file()
+    for task in tasks_list:
+        if int(args.task_id) == int(task["task_id"]):
+            task["status"] = "done"
+            task["updatedAt"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        tasks_list_updated.append(task)
+    write_json_to_file(tasks_list_updated)
+
+
+def list_tasks(args):
+    print(args)
+    tasks_list = read_tasks_file()
+    for task in tasks_list:
+        if args.status == None:
+            print("Status None")
+            print(task)
+        if args.status == task["status"]:
+            print(task)
 
 
 def main():
@@ -106,7 +133,7 @@ def main():
     parser_add_task.set_defaults(funct=add_task)
 
     parser_list_tasks = subparsers.add_parser("list", help="List tasks")
-    parser_list_tasks.add_argument("--status", help="Task status")
+    parser_list_tasks.add_argument("status", nargs="?", help="List all done tasks")
     parser_list_tasks.set_defaults(funct=list_tasks)
 
     parser_update_task = subparsers.add_parser("update", help="Update task")
@@ -117,6 +144,16 @@ def main():
     parser_delete_task = subparsers.add_parser("delete", help="Delete task")
     parser_delete_task.add_argument("task_id", help="Task id")
     parser_delete_task.set_defaults(funct=delete_task)
+
+    parser_mark_in_progress = subparsers.add_parser(
+        "mark-in-progress", help="Mark task in progress"
+    )
+    parser_mark_in_progress.add_argument("task_id", help="Task id")
+    parser_mark_in_progress.set_defaults(funct=mark_in_progress)
+
+    parser_mark_done = subparsers.add_parser("mark-done", help="Mark task done")
+    parser_mark_done.add_argument("task_id", help="Task id")
+    parser_mark_done.set_defaults(funct=mark_done)
 
     args = parser.parse_args()
     args.funct(args)
