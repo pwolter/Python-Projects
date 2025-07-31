@@ -39,10 +39,9 @@ def read_tasks_file():
 
 
 def add_task(args):
-    # TODO Make task_id unique specially when a task is deleted
     if Path(tasks_file).is_file():
         tasks_list = read_tasks_file()
-        task_id = len(tasks_list) + 1
+        task_id = tasks_list[-1]["task_id"] + 1
 
     if not Path(tasks_file).is_file():
         tasks_list = []
@@ -113,11 +112,9 @@ def mark_done(args):
 
 
 def list_tasks(args):
-    print(args)
     tasks_list = read_tasks_file()
     for task in tasks_list:
         if args.status == None:
-            print("Status None")
             print(task)
         if args.status == task["status"]:
             print(task)
